@@ -34,4 +34,18 @@ search(:ssl, '*:*') do |s|
                 :domain_cert => ssl['cert']
     end
   end
+
+  # needed for haproxy
+  if chain_certs
+    combined_pem_file = "#{cert_domain}.combined.pem"
+    template "#{File.join node['ssl']['keys_dir'], combined_pem_file}" do
+      source 'combined_pem.erb'
+      owner 'root'
+      group "#{node['ssl']['group']}"
+      mode '0640'
+      variables :chain_certs => chain_certs,
+                :domain_cert => ssl['cert'],
+                :key => key
+    end
+  end
 end
